@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nhannhan — Simulateur Élevage Pondeuses</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0f0d;
+  --surface: #161713;
+  --surface2: #1e201a;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8e6df;
+  --muted: #7a7a6e;
+  --accent: #c8e84a;
+  --accent-dim: rgba(200,232,74,0.12);
+  --red: #ff5f57;
+  --red-dim: rgba(255,95,87,0.12);
+  --green: #48d97b;
+  --green-dim: rgba(72,217,123,0.1);
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+/* HEADER */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+header h1 {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--text);
+}
+header h1 span { color: var(--accent); }
+.tag {
+  font-size: 11px;
+  padding: 3px 10px;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  color: var(--muted);
+}
+/* TOGGLE */
+.toggle-wrap { padding: 1.5rem 2rem 0; }
+.toggle {
+  display: inline-flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+.toggle button {
+  padding: 7px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+}
+.toggle button.active {
+  background: var(--accent);
+  color: #0e0f0d;
+  font-weight: 500;
+}
+/* MAIN GRID */
+main { padding: 1.5rem 2rem; display: flex; flex-direction: column; gap: 16px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+.card-title {
+  font-family: var(--font-head);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--accent);
+  margin: 12px 0 8px;
+}
+/* SLIDERS */
+.param-row { margin-bottom: 12px; }
+.param-row label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.param-row label strong {
+  color: var(--text);
+  font-weight: 500;
+}
+.note-small {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: -6px;
+  margin-bottom: 10px;
+}
+.note-small strong { color: var(--accent); }
+input[type=range] {
+  width: 100%;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--surface2);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+}
+/* NUMBER INPUTS */
+.irow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  gap: 8px;
+}
+.irow label { color: var(--muted); font-size: 12px; flex: 1; }
+.irow input[type=number] {
+  width: 110px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 4px 8px;
+  text-align: right;
+  outline: none;
+  transition: border .2s;
+}
+.irow input[type=number]:focus { border-color: var(--accent); }
+.divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+.struct-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 4px;
+}
+.struct-total span { color: var(--muted); }
+.struct-total strong { color: var(--accent); }
+/* METRICS */
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+}
+.metric .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+.metric .val { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: var(--text); }
+.metric.featured { border-color: var(--border2); background: var(--surface2); }
+.pos { color: var(--green) !important; }
+.neg { color: var(--red) !important; }
+/* TABLE */
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+td, th { padding: 5px 4px; }
+th { color: var(--muted); font-weight: 400; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+tr td:last-child { text-align: right; color: var(--text); }
+tr td:first-child { color: var(--muted); }
+tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+/* STATUS */
+.status-box {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.status-box.ok { background: var(--green-dim); border: 1px solid rgba(72,217,123,0.2); color: var(--green); }
+.status-box.ko { background: var(--red-dim); border: 1px solid rgba(255,95,87,0.2); color: var(--red); }
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--muted);
+  font-size: 11px;
+  border-top: 1px solid var(--border);
+}
+@media (max-width: 768px) {
+  header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  main, .toggle-wrap { padding: 1rem; }
+  .grid2, .grid3, .grid4 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Nhannhan <span>//</span> Simulateur Pondeuses</h1>
+  <span class="tag">Guinée-Bissau · XOF</span>
+</header>
+
+<div class="toggle-wrap">
+  <div class="toggle">
+    <button class="active" onclick="setMode(0,this)">Sans usine nourriture · 380 XOF/kg</button>
+    <button onclick="setMode(1,this)">Avec usine nourriture · 248 XOF/kg</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ROW 1 : params + structures -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Paramètres de vente & production</div>
+
+      <div class="param-row">
+        <label>Prix plaquette 30 œufs (XOF) <strong id="v-plaque">2 800</strong></label>
+        <input type="range" min="1800" max="4500" step="50" value="2800" id="s-plaque" oninput="calc()">
+      </div>
+      <div class="note-small">Prix / œuf indicatif : <strong id="v-poeuf">—</strong> XOF</div>
+
+      <div class="param-row">
+        <label>Taux de ponte <strong id="v-ponte">75%</strong></label>
+        <input type="range" min="50" max="90" step="1" value="75" id="s-ponte" oninput="calc()">
+      </div>
+
+      <div class="param-row">
+        <label>Mortalité poussins <strong id="v-mort">14%</strong></label>
+        <input type="range" min="5" max="30" step="1" value="14" id="s-mort" oninput="calc()">
+      </div>
+
+      <div class="param-row">
+        <label>Durée projection <strong id="v-dur">80 sem.</strong></label>
+        <input type="range" min="40" max="120" step="4" value="80" id="s-dur" oninput="calc()">
+      </div>
+
+      <div class="param-row">
+        <label>Conso. nourriture / jour / poule <strong id="v-conso">0.110 kg</strong></label>
+        <input type="range" min="0.08" max="0.14" step="0.005" value="0.11" id="s-conso" oninput="calc()">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Investissements structures (modifiables)</div>
+
+      <div class="section-label">Bâtiment & infrastructure</div>
+      <div class="irow"><label>Gros œuvre / structure</label><input type="number" id="i-struct" value="250000" oninput="calc()"></div>
+      <div class="irow"><label>Puits (×2)</label><input type="number" id="i-puits" value="1000000" oninput="calc()"></div>
+      <div class="irow"><label>Portail</label><input type="number" id="i-portail" value="300000" oninput="calc()"></div>
+      <div class="irow"><label>Dépôt</label><input type="number" id="i-depot" value="0" oninput="calc()"></div>
+
+      <div class="section-label">Énergie solaire</div>
+      <div class="irow"><label>Batterie solaire</label><input type="number" id="i-batt" value="900000" oninput="calc()"></div>
+      <div class="irow"><label>Onduleurs</label><input type="number" id="i-ond" value="460000" oninput="calc()"></div>
+      <div class="irow"><label>Panneaux + câbles</label><input type="number" id="i-pan" value="1020000" oninput="calc()"></div>
+      <div class="irow"><label>Installation élec.</label><input type="number" id="i-elec" value="250000" oninput="calc()"></div>
+
+      <div class="divider"></div>
+      <div class="struct-total"><span>Total structures</span><strong id="i-tot-struct">—</strong></div>
+      <div class="struct-total" style="margin-top:4px"><span>Invest. total complet</span><strong id="r-invest" style="color:var(--text)">—</strong></div>
+    </div>
+  </div>
+
+  <!-- ROW 2 : metrics x4 -->
+  <div class="grid4">
+    <div class="metric"><div class="lbl">Poules actives</div><div class="val" id="r-poules">—</div></div>
+    <div class="metric"><div class="lbl">Œufs / jour</div><div class="val" id="r-oj">—</div></div>
+    <div class="metric"><div class="lbl">Œufs / mois</div><div class="val" id="r-om">—</div></div>
+    <div class="metric"><div class="lbl">CA mensuel (XOF)</div><div class="val" id="r-ca">—</div></div>
+  </div>
+
+  <!-- ROW 3 : profits x3 -->
+  <div class="grid3">
+    <div class="metric featured"><div class="lbl">Profit / jour</div><div class="val" id="r-pj">—</div></div>
+    <div class="metric featured"><div class="lbl">Profit / mois</div><div class="val" id="r-pm">—</div></div>
+    <div class="metric featured"><div class="lbl">Résultat net cycle</div><div class="val" id="r-pt">—</div></div>
+  </div>
+
+  <!-- ROW 4 : charges + résultats -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Charges récurrentes / mois</div>
+      <table>
+        <tr><th>Poste</th><th>XOF</th></tr>
+        <tr><td id="c-nourr-lbl">Nourriture</td><td id="c-nourr">—</td></tr>
+        <tr><td>Travailleur 1+2</td><td>240 000</td></tr>
+        <tr><td>Garde</td><td>75 000</td></tr>
+        <tr><td>Starlink mensuel</td><td>36 000</td></tr>
+        <tr><td>Orange 4G</td><td>20 000</td></tr>
+        <tr><td>Plaques emballage</td><td>30 000</td></tr>
+        <tr><td><strong>Total mensuel</strong></td><td><strong id="c-tot">—</strong></td></tr>
+      </table>
+      <div class="divider"></div>
+      <div style="font-size:11px;color:var(--muted)">Conso. totale : <span id="c-conso">—</span> kg/jour</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Indicateurs de rentabilité</div>
+      <table>
+        <tr><th>Indicateur</th><th>Valeur</th></tr>
+        <tr><td>Coût / œuf</td><td id="r-cout">—</td></tr>
+        <tr><td>Marge brute</td><td id="r-marge">—</td></tr>
+        <tr><td>ROI cycle</td><td id="r-roi">—</td></tr>
+        <tr><td>Break-even</td><td id="r-be">—</td></tr>
+      </table>
+      <div id="r-status"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer>Données réelles Guinée-Bissau · Nhannhan Farm Simulator</footer>
+
+<script>
+const MODES=[
+  {
+    prix_kg:380, plaque_def:2800,
+    structs:{struct:250000,puits:1000000,portail:300000,depot:0,batt:900000,ond:460000,pan:1020000,elec:250000},
+    postes_fixes:{poussin:1350000,cages:1176000,lumieres:320000,temp:105000,lonas:50000,pompe:350000,coupebec:100000,seringues:45000,vaccins:180000,veto:240000,nourriture_init:4560000,coupelles:150000,tanque:100000,ventilo:180000,ampoules:45000,camera:400000,starlink_ant:315000,starlink_5m:180000,orange_act:30000,orange_4g:80000,garde_5m:375000,travailleur_5m:600000}
+  },
+  {
+    prix_kg:248, plaque_def:2850,
+    structs:{struct:250000,puits:1000000,portail:300000,depot:0,batt:900000,ond:920000,pan:3120000,elec:250000},
+    postes_fixes:{poussin:1350000,cages:1176000,lumieres:320000,temp:105000,lonas:50000,pompe:350000,coupebec:100000,seringues:45000,vaccins:180000,veto:240000,nourriture_init:3360000,coupelles:150000,tanque:100000,ventilo:180000,ampoules:45000,camera:400000,starlink_ant:315000,starlink_5m:180000,orange_act:30000,orange_4g:80000,garde_5m:375000,travailleur_5m:600000,usine:1400000,granulateur:500000,sac:50000}
+  }
+];
+let mode=0;
+
+function gi(id){return parseFloat(document.getElementById(id).value)||0;}
+function fmt(n){return Math.round(n).toLocaleString('fr-FR');}
+function pct(n){return n.toFixed(1)+'%';}
+
+function setMode(m,el){
+  mode=m;
+  document.querySelectorAll('.toggle button').forEach((b,i)=>b.classList.toggle('active',i===m));
+  const s=MODES[m].structs;
+  document.getElementById('s-plaque').value=MODES[m].plaque_def;
+  document.getElementById('i-struct').value=s.struct;
+  document.getElementById('i-puits').value=s.puits;
+  document.getElementById('i-portail').value=s.portail;
+  document.getElementById('i-depot').value=s.depot;
+  document.getElementById('i-batt').value=s.batt;
+  document.getElementById('i-ond').value=s.ond;
+  document.getElementById('i-pan').value=s.pan;
+  document.getElementById('i-elec').value=s.elec;
+  calc();
+}
+
+function calc(){
+  const ponte=gi('s-ponte')/100;
+  const mort=gi('s-mort')/100;
+  const dur=gi('s-dur');
+  const prix_plaque=gi('s-plaque');
+  const conso=gi('s-conso');
+
+  document.getElementById('v-ponte').textContent=Math.round(ponte*100)+'%';
+  document.getElementById('v-mort').textContent=Math.round(mort*100)+'%';
+  document.getElementById('v-dur').textContent=dur+' sem.';
+  document.getElementById('v-plaque').textContent=fmt(prix_plaque);
+  document.getElementById('v-conso').textContent=conso.toFixed(3)+' kg';
+  document.getElementById('v-poeuf').textContent=(prix_plaque/30).toFixed(2);
+
+  const M=MODES[mode];
+  const fixes_sum=Object.values(M.postes_fixes).reduce((a,b)=>a+b,0);
+  const struct_sum=gi('i-struct')+gi('i-puits')+gi('i-portail')+gi('i-depot')+
+                   gi('i-batt')+gi('i-ond')+gi('i-pan')+gi('i-elec');
+  const invest=fixes_sum+struct_sum;
+
+  document.getElementById('i-tot-struct').textContent=fmt(struct_sum)+' XOF';
+  document.getElementById('r-invest').textContent=fmt(invest)+' XOF';
+
+  const poules=Math.round(1500*(1-mort));
+  const oj=Math.round(poules*ponte);
+  const om=oj*30;
+  const mois=dur*7/30.5;
+
+  document.getElementById('r-poules').textContent=fmt(poules);
+  document.getElementById('r-oj').textContent=fmt(oj);
+  document.getElementById('r-om').textContent=fmt(om);
+
+  const conso_j=poules*conso;
+  const nourr_m=conso_j*30*M.prix_kg;
+  const charges_m=nourr_m+240000+75000+36000+20000+30000;
+  const ca_m=(om/30)*prix_plaque;
+  const profit_m=ca_m-charges_m;
+  const profit_j=profit_m/30;
+  const profit_cycle=profit_m*mois;
+  const resultat_net=profit_cycle-invest;
+
+  document.getElementById('c-nourr-lbl').textContent='Nourriture ('+M.prix_kg+' XOF/kg)';
+  document.getElementById('c-nourr').textContent=fmt(nourr_m)+' XOF';
+  document.getElementById('c-tot').textContent=fmt(charges_m)+' XOF';
+  document.getElementById('c-conso').textContent=conso_j.toFixed(1);
+  document.getElementById('r-ca').textContent=fmt(ca_m);
+
+  function setVal(id,v,unit){
+    const el=document.getElementById(id);
+    el.textContent=fmt(v)+(unit||'');
+    el.className='val '+(v>=0?'pos':'neg');
+  }
+  setVal('r-pj',profit_j,' XOF');
+  setVal('r-pm',profit_m,' XOF');
+  setVal('r-pt',resultat_net,' XOF');
+
+  const cout=om>0?charges_m/om:0;
+  const marge=ca_m>0?profit_m/ca_m*100:0;
+  const roi=invest>0?profit_cycle/invest*100:0;
+  const be=profit_m>0?invest/profit_m:Infinity;
+
+  document.getElementById('r-cout').textContent=cout.toFixed(1)+' XOF';
+  document.getElementById('r-marge').textContent=pct(Math.max(marge,0));
+  document.getElementById('r-roi').textContent=pct(roi);
+  document.getElementById('r-be').textContent=be<500?be.toFixed(1)+' mois':'> 500 mois';
+
+  const st=document.getElementById('r-status');
+  if(resultat_net>=0){
+    st.className='status-box ok';
+    st.innerHTML='Rentabilisé en <strong>'+be.toFixed(1)+' mois</strong> · Cycle de '+Math.round(dur/52*10)/10+' an(s)';
+  } else {
+    st.className='status-box ko';
+    st.innerHTML='Déficit <strong>'+fmt(Math.abs(resultat_net))+' XOF</strong> · Ajuster prix plaquette ou durée';
+  }
+}
+calc();
+</script>
+</body>
+</html>
